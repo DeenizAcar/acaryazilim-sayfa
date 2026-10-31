@@ -298,6 +298,21 @@
     .pay-btn { margin-left: 10px; border: 0; background: var(--bg); padding: 6px 10px; border-radius: 8px; font-size: .75rem; font-weight: 700; color: var(--blue); }
     .total-row { display: flex; justify-content: space-between; padding: 14px 6px 4px; font-weight: 800; }
 
+    /* Demolar tanıtımı */
+    .demo-promo {
+      margin-top: 28px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+      background: var(--navy); color: #fff; border-radius: 22px; padding: 22px 26px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .demo-promo:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(10,31,68,.25); }
+    .demo-thumbs { display: flex; }
+    .demo-thumbs img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border: 3px solid var(--navy); margin-left: -14px; }
+    .demo-thumbs img:first-child { margin-left: 0; }
+    .demo-promo-text { flex: 1; min-width: 220px; }
+    .demo-promo-text b { display: block; font-size: 1.15rem; margin-bottom: 2px; }
+    .demo-promo-text span { color: rgba(255,255,255,.75); font-size: .95rem; }
+    .nav-links a.nav-demo { opacity: 1; color: var(--orange); }
+
     /* Nasıl çalışıyoruz */
     .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; counter-reset: step; }
     .step { background: #fff; border-radius: var(--radius); padding: 26px; border: 1px solid var(--line); position: relative; }
@@ -473,7 +488,7 @@
       </button>
       <nav class="nav-links" id="navLinks">
         <a href="#hizmetler">Hizmetler</a>
-        <a href="#ornekler">Örnekler</a>
+        <a href="demolar/" class="nav-demo">Demolar</a>
         <a href="#nasil">Nasıl Çalışıyoruz</a>
         <a href="#hakkimizda">Hakkımızda</a>
         <a href="#sss">Sorular</a>
@@ -492,7 +507,7 @@
           <p class="sub">Web sitesi, QR menü, stok ve veresiye programı, randevu sistemi… Dükkanınıza gelir, çayınızı içer, derdinizi dinleriz. Size uygun programı yapar, kurar, öğretiriz.</p>
           <div class="hero-ctas">
             <a class="btn btn-wa js-wa" href="#iletisim" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg> WhatsApp'tan Yazın</a>
-            <a class="btn btn-ghost" href="#hizmetler">Neler Yapıyoruz?</a>
+            <a class="btn btn-ghost" href="demolar/">8 Demoyu İnceleyin →</a>
           </div>
           <div class="hero-points">
             <span><svg><use href="#i-check"/></svg> İlk görüşme ücretsiz</span>
@@ -772,6 +787,21 @@
             <div class="app-body" id="vereList"></div>
           </div>
         </div>
+
+        <a class="demo-promo reveal" href="demolar/">
+          <div class="demo-thumbs" aria-hidden="true">
+            <img src="demolar/img/kafe-kapak.jpg" alt="" loading="lazy" />
+            <img src="demolar/img/market-kapak.jpg" alt="" loading="lazy" />
+            <img src="demolar/img/salon-kapak.jpg" alt="" loading="lazy" />
+            <img src="demolar/img/cicek-kapak.jpg" alt="" loading="lazy" />
+            <img src="demolar/img/firin-kapak.jpg" alt="" loading="lazy" />
+          </div>
+          <div class="demo-promo-text">
+            <b>Daha fazlasını görmek ister misiniz?</b>
+            <span>8 farklı dükkan için hazırladığımız tam çalışan demoları inceleyin: kafe, market, kuaför, bakkal, oto servis, çiçekçi, lokanta ve fırın.</span>
+          </div>
+          <span class="btn btn-orange">Tüm Demolar →</span>
+        </a>
       </div>
     </section>
 

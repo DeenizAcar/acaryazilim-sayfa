@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salon Ege — Online Randevu (Demo)</title>
+  <meta name="theme-color" content="#1d1d22" />
+  <link rel="stylesheet" href="demo.css" />
+  <style>
+    :root { --ink: #1d1d22; --rose: #c2577a; --rose-2: #e88aa8; --bg: #f7f3f2; --line: #ebe3e1; --muted: #75696b; --green: #1f9d5b; }
+    body { background: var(--bg); color: var(--ink); }
+    .switcher { display: flex; justify-content: center; gap: 6px; padding: 12px; background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 44px; z-index: 20; }
+    .switcher button { border: 1px solid var(--line); background: #fff; padding: 9px 16px; border-radius: 999px; font-weight: 700; font-size: 14px; color: var(--muted); }
+    .switcher button.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .view[hidden] { display: none; }
+
+    .hero { position: relative; height: 300px; overflow: hidden; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; }
+    .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(20,10,15,.82)); }
+    .hero-in { position: absolute; z-index: 1; left: 0; right: 0; bottom: 24px; color: #fff; max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+    .hero-in h1 { font-size: clamp(30px, 6vw, 44px); letter-spacing: -.02em; }
+    .hero-in .meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 6px; font-weight: 600; font-size: 14px; opacity: .92; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 24px 20px 60px; }
+    .layout { display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start; }
+    h2 { font-size: 22px; margin-bottom: 12px; }
+    .services { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .svc { background: #fff; border: 2px solid var(--line); border-radius: 16px; overflow: hidden; text-align: left; padding: 0; transition: border-color .15s, transform .15s; }
+    .svc:hover { transform: translateY(-2px); }
+    .svc.on { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(194,87,122,.15); }
+    .svc img { width: 100%; height: 120px; object-fit: cover; }
+    .svc .ph { height: 120px; display: grid; place-items: center; font-size: 40px; background: linear-gradient(135deg, #f6e3e9, #efe7f6); }
+    .svc .in { padding: 12px 14px; }
+    .svc b { display: block; font-size: 15.5px; }
+    .svc small { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+    .svc .p { float: right; font-weight: 800; color: var(--rose); }
+    .about { margin-top: 26px; background: #fff; border-radius: 16px; border: 1px solid var(--line); padding: 18px; display: grid; gap: 8px; font-size: 14.5px; color: var(--muted); }
+    .about b { color: var(--ink); }
+
+    .book { background: #fff; border-radius: 20px; border: 1px solid var(--line); padding: 20px; position: sticky; top: 110px; box-shadow: 0 16px 40px rgba(60,20,30,.08); }
+    .steps { display: flex; gap: 6px; margin-bottom: 16px; }
+    .steps span { flex: 1; height: 5px; border-radius: 999px; background: var(--line); }
+    .steps span.on { background: var(--rose); }
+    .book h3 { font-size: 18px; margin-bottom: 4px; }
+    .book .hint { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; }
+    .staff { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .staff button { border: 2px solid var(--line); background: #fff; border-radius: 14px; padding: 10px 4px; font-size: 12.5px; font-weight: 700; }
+    .staff button.on { border-color: var(--rose); }
+    .av { width: 44px; height: 44px; border-radius: 50%; margin: 0 auto 6px; display: grid; place-items: center; color: #fff; font-weight: 800; }
+    .days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
+    .days button { border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 8px 2px; font-weight: 800; font-size: 15px; }
+    .days button small { display: block; font-size: 11px; color: var(--muted); font-weight: 700; }
+    .days button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .days button.on small { color: rgba(255,255,255,.7); }
+    .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .slots button { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 9px 2px; font-weight: 700; font-size: 14px; }
+    .slots button:disabled { background: #f3eeed; color: #c2b7b8; text-decoration: line-through; cursor: not-allowed; }
+    .slots button.on { background: var(--rose); color: #fff; border-color: var(--rose); }
+    label { display: grid; gap: 5px; font-weight: 700; font-size: 13.5px; margin-bottom: 10px; }
+    input, textarea { padding: 12px; border: 1px solid var(--line); border-radius: 12px; font-size: 15px; width: 100%; }
+    .summary { background: var(--bg); border-radius: 14px; padding: 12px 14px; font-size: 14px; display: grid; gap: 4px; margin-bottom: 12px; }
+    .summary div { display: flex; justify-content: space-between; gap: 10px; }
+    .summary b { text-align: right; }
+    .nav-btns { display: flex; gap: 8px; margin-top: 16px; }
+    .nav-btns button { flex: 1; border: 0; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 15px; }
+    .nav-btns .prev { background: #f1ecea; color: var(--ink); }
+    .nav-btns .next { background: var(--rose); color: #fff; }
+    .nav-btns .next:disabled { opacity: .4; cursor: not-allowed; }
+    .done { text-align: center; padding: 10px 0; }
+    .done .ok { width: 64px; height: 64px; border-radius: 50%; background: #e5f6ec; color: var(--green); font-size: 32px; display: grid; place-items: center; margin: 0 auto 12px; }
+
+    /* Panel */
+    .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+    .stat { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+    .stat small { color: var(--muted); font-weight: 700; font-size: 13px; }
+    .stat b { display: block; font-size: 24px; }
+    .appt { display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--c, var(--rose)); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; }
+    .appt.new { animation: pop 1s ease; background: #fff7fa; }
+    @keyframes pop { 0% { transform: scale(.96); } 50% { transform: scale(1.02); } 100% { transform: none; } }
+    .appt .t { font-size: 18px; font-weight: 800; }
+    .appt b { display: block; }
+    .appt small { color: var(--muted); font-weight: 600; }
+    .tag { font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #e5f6ec; color: var(--green); white-space: nowrap; }
+    .tag.wait { background: #fff4e5; color: #c46a10; }
+    .tag.newt { background: #fce4ec; color: var(--rose); }
+
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .book { position: static; } }
+    @media (max-width: 520px) { .services { grid-template-columns: 1fr 1fr; gap: 8px; } .svc img, .svc .ph { height: 90px; } .stats { grid-template-columns: 1fr 1fr 1fr; } .stat b { font-size: 19px; } .appt { grid-template-columns: 56px 1fr; } .appt .tag { grid-column: 2; justify-self: start; } }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">
+    <a class="back" href="./">← Demolar</a>
+    <span class="note">Örnek uygulamadır · Salon Ege gerçek bir dükkan değildir</span>
+    <a class="cta" href="https://wa.me/905333784212?text=Merhaba%2C%20online%20randevu%20demonuzu%20g%C3%B6rd%C3%BCm.%20Bilgi%20almak%20istiyorum." target="_blank" rel="noopener"><span class="long">Dükkanıma da </span>İstiyorum</a>
+  </div>
+
+  <div class="switcher">
+    <button class="on" data-v="customer">👩 Müşteri görünümü</button>
+    <button data-v="panel">📋 Salon paneli</button>
+  </div>
+
+  <!-- MÜŞTERİ -->
+  <div class="view" id="v-customer">
+    <div class="hero">
+      <img src="img/salon-kapak.jpg" alt="Salon Ege" />
+      <div class="hero-in">
+        <h1>Salon Ege</h1>
+        <div class="meta"><span>⭐ 4,9 (312 yorum)</span><span>📍 Karşıyaka çarşı</span><span>🕘 Pzt–Cmt 09:00–20:00</span></div>
+      </div>
+    </div>
+    <div class="wrap layout">
+      <div>
+        <h2>Hizmetlerimiz</h2>
+        <div class="services" id="services"></div>
+        <div class="about">
+          <div><b>Adres:</b> Kemalpaşa Caddesi, Karşıyaka / İzmir (örnek)</div>
+          <div><b>Telefon:</b> 0232 000 00 00 (örnek)</div>
+          <div><b>Not:</b> Randevunuzdan 1 gün önce WhatsApp'tan hatırlatma mesajı gönderilir. İptal için mesaja "iptal" yazmanız yeterli.</div>
+        </div>
+      </div>
+      <div class="book" id="book"></div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div class="view" id="v-panel" hidden>
+    <div class="wrap">
+      <div class="panel-head">
+        <div><h2 style="margin:0">Bugünün randevuları</h2><div style="color:var(--muted);font-weight:600" id="pDate"></div></div>
+        <span class="tag newt">Müşteri görünümünden randevu alın, burada anında görünür</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Randevu</small><b id="sCount"></b></div>
+        <div class="stat"><small>Tahmini ciro</small><b id="sCiro"></b></div>
+        <div class="stat"><small>Boş saat</small><b id="sFree"></b></div>
+      </div>
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const tl = n => "₺" + n.toLocaleString("tr-TR");
+    const services = [
+      { ad: "Saç Kesimi", sure: 45, fiyat: 450, img: "salon-kesim" },
+      { ad: "Saç Boyama", sure: 120, fiyat: 1400, img: "salon-boya" },
+      { ad: "Fön", sure: 30, fiyat: 250, img: "salon-fon" },
+      { ad: "Manikür", sure: 45, fiyat: 350, img: "salon-manikur" },
+      { ad: "Kaş Alma", sure: 15, fiyat: 150, e: "✨" },
+      { ad: "Gelin Başı", sure: 150, fiyat: 3500, e: "👰" }
+    ];
+    const staff = [
+      { ad: "Fark etmez", ini: "★", c: "#9a8f90" },
+      { ad: "Ayşe", ini: "A", c: "#c2577a" },
+      { ad: "Elif", ini: "E", c: "#7b5cc4" },
+      { ad: "Can", ini: "C", c: "#2f80c9" }
+    ];
+    const times = ["09:00", "09:45", "10:30", "11:15", "12:00", "13:30", "14:15", "15:00", "15:45", "16:30", "17:15", "18:00", "18:45", "19:15"];
+    const days = [];
+    for (let i = 0; days.length < 5; i++) { const d = new Date(); d.setDate(d.getDate() + i); if (d.getDay() !== 0) days.push(d); }
+    const dayKey = d => d.toDateString();
+    const todayKey = dayKey(days[0]);
+    const appts = [
+      { t: "09:00", m: "Zeynep K.", s: 1, st: 1, durum: "ok" },
+      { t: "10:30", m: "Merve A.", s: 0, st: 2, durum: "ok" },
+      { t: "11:15", m: "Hatice Y.", s: 3, st: 1, durum: "ok" },
+      { t: "13:30", m: "Selin D.", s: 2, st: 3, durum: "wait" },
+      { t: "15:00", m: "Burcu T.", s: 0, st: 1, durum: "wait" },
+      { t: "17:15", m: "Gül S.", s: 4, st: 2, durum: "wait" }
+    ].map(a => ({ ...a, day: todayKey }));
+    const sel = { s: null, st: 0, d: 0, t: null, ad: "", tel: "" };
+    let step = 1;
+
+    function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2500); }
+    const taken = (d, t) => appts.some(a => a.day === dayKey(days[d]) && a.t === t) || ((times.indexOf(t) * 5 + d * 3) % 7 === 0);
+
+    function renderServices() {
+      $("services").innerHTML = services.map((s, i) => `
+        <button class="svc ${sel.s === i ? "on" : ""}" data-i="${i}">
+          ${s.img ? `<img src="img/${s.img}.jpg" alt="" loading="lazy" />` : `<div class="ph">${s.e}</div>`}
+          <div class="in"><span class="p">${tl(s.fiyat)}</span><b>${s.ad}</b><small>${s.sure} dk</small></div>
+        </button>`).join("");
+    }
+    $("services").addEventListener("click", e => {
+      const b = e.target.closest(".svc"); if (!b) return;
+      sel.s = +b.dataset.i; step = 2; renderServices(); renderBook();
+      if (innerWidth < 900) $("book").scrollIntoView({ behavior: "smooth" });
+    });
+
+    function renderBook() {
+      const bar = `<div class="steps">${[1, 2, 3, 4].map(n => `<span class="${n <= step ? "on" : ""}"></span>`).join("")}</div>`;
+      let html = "";
+      if (step === 1) {
+        html = `<h3>Randevu al</h3><p class="hint">Başlamak için soldan bir hizmet seçin.</p>
+          <div class="done"><div class="ok" style="background:#fce4ec;color:var(--rose)">✂️</div><p style="color:var(--muted);font-size:14px">Hizmet seçince uzman, gün ve saat seçimine geçilir.</p></div>`;
+      } else if (step === 2) {
+        html = `<h3>Uzman seçin</h3><p class="hint">${services[sel.s].ad} · ${services[sel.s].sure} dk · ${tl(services[sel.s].fiyat)}</p>
+          <div class="staff">${staff.map((p, i) => `<button data-st="${i}" class="${sel.st === i ? "on" : ""}"><div class="av" style="background:${p.c}">${p.ini}</div>${p.ad}</button>`).join("")}</div>
+          <div class="nav-btns"><button class="prev" data-go="1">Geri</button><button class="next" data-go="3">Devam</button></div>`;
+      } else if (step === 3) {
+        html = `<h3>Gün ve saat</h3><p class="hint">Dolu saatler otomatik kapalıdır.</p>
+          <div class="days">${days.map((d, i) => `<button data-d="${i}" class="${sel.d === i ? "on" : ""}">${d.getDate()}<small>${d.toDateString() === new Date().toDateString() ? "Bugün" : d.toLocaleDateString("tr-TR", { weekday: "short" })}</small></button>`).join("")}</div>
+          <div class="slots">${times.map(t => `<button data-t="${t}" ${taken(sel.d, t) ? "disabled" : ""} class="${sel.t === t ? "on" : ""}">${t}</button>`).join("")}</div>
+          <div class="nav-btns"><button class="prev" data-go="2">Geri</button><button class="next" data-go="4" ${sel.t ? "" : "disabled"}>Devam</button></div>`;
+      } else if (step === 4) {
+        const d = days[sel.d];
+        html = `<h3>Bilgileriniz</h3><p class="hint">Onay ve hatırlatma mesajı bu numaraya gelir.</p>
+          <div class="summary">
+            <div><span>Hizmet</span><b>${services[sel.s].ad}</b></div>
+            <div><span>Uzman</span><b>${staff[sel.st].ad}</b></div>
+            <div><span>Tarih</span><b>${d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" })}, ${sel.t}</b></div>
+            <div><span>Ücret</span><b>${tl(services[sel.s].fiyat)}</b></div>
+          </div>
+          <form id="infoForm">
+            <label>Adınız <input id="fAd" required placeholder="Ör. Ayşe Yılmaz" value="${sel.ad}" /></label>
+            <label>Telefon <input id="fTel" required placeholder="05xx xxx xx xx" inputmode="tel" value="${sel.tel}" /></label>
+            <div class="nav-btns"><button type="button" class="prev" data-go="3">Geri</button><button class="next">Randevuyu onayla</button></div>
+          </form>`;
+      } else {
+        const d = days[sel.d];
+        html = `<div class="done"><div class="ok">✓</div><h3>Randevunuz alındı!</h3>
+          <p class="hint" style="margin-top:6px">${d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" })}, saat <b>${sel.t}</b><br />${services[sel.s].ad} · ${staff[sel.st].ad}</p></div>
+          <div class="wa-preview"><div class="wa-bubble">Merhaba ${sel.ad} 👋\nSalon Ege'deki randevunuz onaylandı.\n📅 ${d.toLocaleDateString("tr-TR", { day: "numeric", month: "long" })} ${sel.t}\n✂️ ${services[sel.s].ad}\nGörüşmek üzere!</div></div>
+          <p class="wa-note">Müşteriye giden onay mesajı örneği</p>
+          <div class="nav-btns"><button class="prev" id="seePanel">Salon panelinde gör</button><button class="next" id="again">Yeni randevu</button></div>`;
+      }
+      $("book").innerHTML = (step <= 4 ? bar : "") + html;
+    }
+
+    $("book").addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.dataset.st) { sel.st = +b.dataset.st; renderBook(); }
+      else if (b.dataset.d) { sel.d = +b.dataset.d; sel.t = null; renderBook(); }
+      else if (b.dataset.t) { sel.t = b.dataset.t; renderBook(); }
+      else if (b.dataset.go) { step = +b.dataset.go; if (step === 1) { sel.s = null; renderServices(); } renderBook(); }
+      else if (b.id === "again") { Object.assign(sel, { s: null, st: 0, d: 0, t: null }); step = 1; renderServices(); renderBook(); }
+      else if (b.id === "seePanel") showView("panel");
+    });
+    $("book").addEventListener("submit", e => {
+      e.preventDefault();
+      sel.ad = $("fAd").value.trim(); sel.tel = $("fTel").value.trim();
+      const st = sel.st === 0 ? 1 + (times.indexOf(sel.t) % 3) : sel.st;
+      appts.push({ t: sel.t, m: sel.ad, s: sel.s, st, durum: "new", day: dayKey(days[sel.d]), fresh: true });
+      step = 5; renderBook();
+      toast("Randevu oluşturuldu, salona bildirim gitti 🔔");
+    });
+
+    function renderPanel() {
+      $("pDate").textContent = days[0].toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+      const list = appts.filter(a => a.day === todayKey).sort((a, b) => a.t.localeCompare(b.t));
+      const future = appts.filter(a => a.day !== todayKey && a.fresh);
+      $("sCount").textContent = list.length;
+      $("sCiro").textContent = tl(list.reduce((s, a) => s + services[a.s].fiyat, 0));
+      $("sFree").textContent = times.filter(t => !taken(0, t)).length;
+      const row = a => `<div class="appt ${a.fresh ? "new" : ""}" style="--c:${staff[a.st].c}">
+          <div class="t">${a.t}</div>
+          <div><b>${a.m}</b><small>${services[a.s].ad} · ${staff[a.st].ad}${a.day !== todayKey ? " · " + new Date(a.day).toLocaleDateString("tr-TR", { day: "numeric", month: "long" }) : ""}</small></div>
+          <span class="tag ${a.durum === "wait" ? "wait" : a.durum === "new" ? "newt" : ""}">${a.durum === "ok" ? "Geldi ✓" : a.durum === "wait" ? "Bekleniyor" : "Yeni 🔔"}</span>
+        </div>`;
+      $("list").innerHTML = list.map(row).join("") +
+        (future.length ? `<h2 style="margin-top:22px">İleri tarihli yeni randevular</h2>` + future.map(row).join("") : "");
+    }
+
+    function showView(v) {
+      document.querySelectorAll(".switcher button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+      $("v-customer").hidden = v !== "customer"; $("v-panel").hidden = v !== "panel";
+      if (v === "panel") renderPanel();
+      scrollTo(0, 0);
+    }
+    document.querySelectorAll(".switcher button").forEach(b => b.addEventListener("click", () => showView(b.dataset.v)));
+
+    renderServices(); renderBook();
+  </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asmalı Fırın — Kemeraltı (Demo Tanıtım Sitesi)</title>
+  <meta name="theme-color" content="#3b2414" />
+  <link rel="stylesheet" href="demo.css" />
+  <style>
+    :root { --brown: #3b2414; --wheat: #d9a441; --crust: #a5622a; --cream: #fbf6ee; --line: #ecdfcc; --muted: #7b6a58; --text: #2a1d12; }
+    body { background: var(--cream); color: var(--text); }
+    .serif { font-family: Georgia, "Times New Roman", serif; }
+    header.site { position: sticky; top: 44px; z-index: 50; background: rgba(251,246,238,.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+    .nav { max-width: 1160px; margin: 0 auto; padding: 0 20px; height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo .mark { width: 42px; height: 42px; border-radius: 50%; background: var(--brown); color: var(--wheat); display: grid; place-items: center; font-size: 20px; }
+    .logo b { font-family: Georgia, serif; font-size: 21px; display: block; line-height: 1.1; }
+    .logo small { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
+    .links { display: flex; gap: 24px; align-items: center; font-weight: 700; font-size: 15px; }
+    .links a:not(.call) { color: var(--muted); }
+    .links a:not(.call):hover { color: var(--text); }
+    .call { background: var(--brown); color: #fff; padding: 10px 16px; border-radius: 999px; }
+    .burger { display: none; border: 0; background: none; font-size: 26px; }
+
+    .hero { position: relative; min-height: 560px; display: flex; align-items: flex-end; overflow: hidden; }
+    .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,10,4,.15) 0%, rgba(20,10,4,.85) 100%); }
+    .hero-in { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 0 20px 56px; width: 100%; color: #fff; }
+    .open-now { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.15); backdrop-filter: blur(6px); padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; margin-bottom: 16px; }
+    .open-now i { width: 9px; height: 9px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 4px rgba(74,222,128,.25); }
+    .open-now.closed i { background: #f87171; box-shadow: 0 0 0 4px rgba(248,113,113,.25); }
+    .hero h1 { font-family: Georgia, serif; font-size: clamp(38px, 7vw, 68px); line-height: 1.05; max-width: 720px; }
+    .hero p { font-size: 18px; max-width: 540px; margin: 16px 0 26px; opacity: .9; }
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; border-radius: 999px; font-weight: 800; }
+    .btn.wheat { background: var(--wheat); color: var(--brown); }
+    .btn.ghost { border: 1px solid rgba(255,255,255,.5); color: #fff; }
+
+    section.s { padding: 80px 0; }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 20px; }
+    .eyebrow { color: var(--crust); font-weight: 800; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { font-family: Georgia, serif; font-size: clamp(30px, 4.5vw, 42px); line-height: 1.15; margin: 8px 0 16px; }
+    .story { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+    .story p { color: var(--muted); font-size: 17px; margin-bottom: 14px; }
+    .story-img { position: relative; }
+    .story-img img { border-radius: 24px; aspect-ratio: 4/5; object-fit: cover; width: 100%; }
+    .story-img .stamp { position: absolute; left: -20px; bottom: 30px; background: var(--wheat); color: var(--brown); border-radius: 50%; width: 130px; height: 130px; display: grid; place-items: center; text-align: center; font-family: Georgia, serif; font-weight: 700; font-size: 15px; line-height: 1.2; box-shadow: 0 16px 30px rgba(0,0,0,.2); transform: rotate(-8deg); }
+    .story-img .stamp b { font-size: 30px; display: block; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .facts div { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+    .facts b { font-family: Georgia, serif; font-size: 26px; display: block; color: var(--crust); }
+    .facts span { font-size: 13px; font-weight: 700; color: var(--muted); }
+
+    .products { background: #fff; }
+    .p-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 28px; }
+    .p-card { border-radius: 20px; overflow: hidden; background: var(--cream); border: 1px solid var(--line); }
+    .p-card img { aspect-ratio: 1; object-fit: cover; width: 100%; }
+    .p-card div { padding: 14px 16px 18px; }
+    .p-card h3 { font-family: Georgia, serif; font-size: 20px; }
+    .p-card p { color: var(--muted); font-size: 14px; margin: 4px 0 8px; }
+    .p-card b { color: var(--crust); }
+    .hot { margin-top: 34px; background: var(--brown); color: #fff; border-radius: 22px; padding: 26px; display: grid; grid-template-columns: .8fr 1.2fr; gap: 24px; align-items: center; }
+    .hot h3 { font-family: Georgia, serif; font-size: 26px; }
+    .hot p { opacity: .8; }
+    .times { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .times div { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 14px; padding: 12px; }
+    .times b { display: block; color: var(--wheat); font-size: 15px; }
+    .times span { font-size: 14px; font-weight: 700; }
+    .times .next { border-color: var(--wheat); background: rgba(217,164,65,.18); }
+
+    .gallery { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 200px; gap: 12px; margin-top: 28px; }
+    .gallery img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; cursor: zoom-in; transition: opacity .2s; }
+    .gallery img:hover { opacity: .9; }
+    .gallery .w2 { grid-column: span 2; }
+    .gallery .h2 { grid-row: span 2; }
+    .lightbox { position: fixed; inset: 0; z-index: 1500; background: rgba(0,0,0,.9); display: none; align-items: center; justify-content: center; padding: 20px; cursor: zoom-out; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-height: 90vh; border-radius: 12px; }
+
+    .reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
+    .rev { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+    .rev .stars { color: var(--wheat); letter-spacing: 2px; }
+    .rev p { font-family: Georgia, serif; font-size: 17px; margin: 8px 0 12px; }
+    .rev small { color: var(--muted); font-weight: 700; }
+
+    .visit { background: #fff; }
+    .visit-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; margin-top: 24px; }
+    .hours { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .hours td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+    .hours td:last-child { text-align: right; font-weight: 700; }
+    .hours tr.today { background: #fdf3df; font-weight: 800; }
+    .hours tr.today td:first-child::after { content: " · bugün"; color: var(--crust); font-size: 12px; }
+    .contact-list { display: grid; gap: 10px; margin-top: 20px; }
+    .contact-list div { display: flex; gap: 12px; align-items: center; font-weight: 600; }
+    .contact-list span.ic { width: 40px; height: 40px; border-radius: 12px; background: var(--cream); display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+    .map { border-radius: 20px; overflow: hidden; border: 1px solid var(--line); min-height: 380px; }
+    .map iframe { width: 100%; height: 100%; min-height: 380px; border: 0; }
+    footer { background: var(--brown); color: rgba(255,255,255,.7); padding: 30px 0; font-size: 14px; text-align: center; }
+    footer b { color: var(--wheat); font-family: Georgia, serif; font-size: 18px; display: block; margin-bottom: 4px; }
+
+    @media (max-width: 900px) {
+      .story, .visit-grid, .hot { grid-template-columns: 1fr; }
+      .p-grid { grid-template-columns: 1fr 1fr; }
+      .reviews { grid-template-columns: 1fr; }
+      .gallery { grid-template-columns: 1fr 1fr; grid-auto-rows: 150px; }
+      .story-img .stamp { left: 10px; width: 110px; height: 110px; }
+    }
+    @media (max-width: 760px) {
+      .links { display: none; position: absolute; top: 66px; left: 0; right: 0; background: var(--cream); flex-direction: column; align-items: stretch; gap: 0; padding: 8px 20px 18px; border-bottom: 1px solid var(--line); }
+      .links.open { display: flex; }
+      .links a { padding: 12px 0; }
+      .links .call { text-align: center; margin-top: 8px; }
+      .burger { display: block; }
+      section.s { padding: 56px 0; }
+      .hero { min-height: 480px; }
+      .times { grid-template-columns: 1fr 1fr; }
+      .facts b { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">
+    <a class="back" href="./">← Demolar</a>
+    <span class="note">Örnek sitedir · Asmalı Fırın gerçek bir dükkan değildir</span>
+    <a class="cta" href="https://wa.me/905333784212?text=Merhaba%2C%20tan%C4%B1t%C4%B1m%20sitesi%20demonuzu%20g%C3%B6rd%C3%BCm.%20D%C3%BCkkan%C4%B1m%20i%C3%A7in%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener"><span class="long">Dükkanıma da </span>İstiyorum</a>
+  </div>
+
+  <header class="site">
+    <div class="nav">
+      <a href="#" class="logo"><span class="mark">🥖</span><div><b>Asmalı Fırın</b><small>Kemeraltı · 1968</small></div></a>
+      <button class="burger" id="burger" aria-label="Menü">☰</button>
+      <nav class="links" id="links">
+        <a href="#hikaye">Hikâyemiz</a>
+        <a href="#urunler">Ürünler</a>
+        <a href="#galeri">Galeri</a>
+        <a href="#ziyaret">Ziyaret</a>
+        <a href="#ziyaret" class="call">📞 Bizi arayın</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <img src="img/firin-odun.jpg" alt="Odun ateşinde pişen gevrekler" />
+    <div class="hero-in">
+      <div class="open-now" id="openNow"><i></i><span></span></div>
+      <h1>1968'den beri odun ateşinde, aynı tarifle.</h1>
+      <p>Kemeraltı'nın kalbinde, üç kuşaktır her sabah gün doğmadan yanan fırınımızda gevrek, ekmek ve boyoz pişiriyoruz.</p>
+      <div class="btns">
+        <a class="btn wheat" href="#ziyaret">📍 Yol tarifi</a>
+        <a class="btn ghost" href="#urunler">Ürünlerimiz</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="s" id="hikaye">
+    <div class="wrap story">
+      <div>
+        <span class="eyebrow">Hikâyemiz</span>
+        <h2>Dedemizin fırını, bizim emanetimiz</h2>
+        <p>Asmalı Fırın, 1968 yılında Mehmet Usta'nın Kemeraltı'nda, asma altındaki küçük dükkanında açtığı odun fırınıyla başladı. Mahalleli fırının önündeki asmadan dolayı "Asmalı" dedi, isim de öyle kaldı.</p>
+        <p>Bugün üçüncü kuşak olarak aynı fırının başındayız. Hamurumuzu hâlâ elde yoğuruyor, ekşi mayamızı her gün tazeliyor, katkı maddesi kullanmıyoruz.</p>
+        <div class="facts">
+          <div><b>57</b><span>yıllık tecrübe</span></div>
+          <div><b>3.000+</b><span>günlük gevrek</span></div>
+          <div><b>3</b><span>kuşak usta</span></div>
+        </div>
+      </div>
+      <div class="story-img">
+        <img src="img/firin-raf.jpg" alt="Raflarda taze ekmekler" loading="lazy" />
+        <div class="stamp"><div><b>1968</b>beri<br />Kemeraltı</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s products" id="urunler">
+    <div class="wrap">
+      <span class="eyebrow">Ürünlerimiz</span>
+      <h2>Her gün taze, her gün sıcak</h2>
+      <div class="p-grid">
+        <div class="p-card"><img src="img/firin-simit.jpg" alt="Gevrek" loading="lazy" /><div><h3>İzmir Gevreği</h3><p>Pekmeze batırılmış, bol susamlı, odun ateşinde.</p><b>₺15</b></div></div>
+        <div class="p-card"><img src="img/firin-ekmek.jpg" alt="Köy ekmeği" loading="lazy" /><div><h3>Ekşi Mayalı Köy Ekmeği</h3><p>48 saat dinlendirilmiş hamur, taş tabanda.</p><b>₺60</b></div></div>
+        <div class="p-card"><img src="img/firin-vitrin.jpg" alt="Poğaça ve açma" loading="lazy" /><div><h3>Poğaça & Açma</h3><p>Peynirli, zeytinli, sade. Sabah 7'de vitrinde.</p><b>₺25'ten başlayan</b></div></div>
+        <div class="p-card"><img src="img/firin-pasta.jpg" alt="Tart ve pastalar" loading="lazy" /><div><h3>Tart & Pastalar</h3><p>Mevsim meyveli tartlar, sipariş üzerine doğum günü pastası.</p><b>₺90'dan başlayan</b></div></div>
+      </div>
+      <div class="hot">
+        <div><h3>🔥 Sıcak çıkış saatleri</h3><p>Fırından yeni çıkmış almak isteyenler için. Bir sonraki çıkış sarı ile işaretli.</p></div>
+        <div class="times" id="times"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s" id="galeri">
+    <div class="wrap">
+      <span class="eyebrow">Galeri</span>
+      <h2>Fırınımızdan kareler</h2>
+      <div class="gallery" id="gallery">
+        <img class="w2 h2" src="img/firin-kapak.jpg" alt="Sepetlerde ekmekler" loading="lazy" />
+        <img src="img/firin-odun.jpg" alt="Odun fırını" loading="lazy" />
+        <img src="img/firin-simit.jpg" alt="Gevrekler" loading="lazy" />
+        <img src="img/firin-raf.jpg" alt="Ekmek rafı" loading="lazy" />
+        <img src="img/firin-pasta.jpg" alt="Tartlar" loading="lazy" />
+        <img class="w2" src="img/firin-vitrin.jpg" alt="Vitrin" loading="lazy" />
+        <img class="w2" src="img/firin-ekmek.jpg" alt="Köy ekmeği" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <section class="s" style="padding-top:0">
+    <div class="wrap">
+      <span class="eyebrow">Müşterilerimiz ne diyor?</span>
+      <h2>Kemeraltı'nın sabah durağı</h2>
+      <div class="reviews">
+        <div class="rev"><div class="stars">★★★★★</div><p>"Çocukluğumdan beri gelirim. Gevreğin tadı hiç değişmedi."</p><small>Örnek yorum · Google</small></div>
+        <div class="rev"><div class="stars">★★★★★</div><p>"Ekşi mayalı ekmekleri bir hafta bayatlamıyor. Her cumartesi alıyoruz."</p><small>Örnek yorum · Google</small></div>
+        <div class="rev"><div class="stars">★★★★★</div><p>"Sabah 7'de sıcak poğaça ve çay. Kemeraltı'na gelen mutlaka uğramalı."</p><small>Örnek yorum · Google</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s visit" id="ziyaret">
+    <div class="wrap">
+      <span class="eyebrow">Ziyaret</span>
+      <h2>Bizi bulun</h2>
+      <div class="visit-grid">
+        <div>
+          <table class="hours" id="hours"></table>
+          <div class="contact-list">
+            <div><span class="ic">📍</span>Kemeraltı Çarşısı, Konak / İzmir (örnek adres)</div>
+            <div><span class="ic">📞</span>0232 000 00 00 (örnek)</div>
+            <div><span class="ic">🛵</span>Toplu siparişlerde Konak içi teslimat</div>
+          </div>
+        </div>
+        <div class="map"><iframe title="Harita" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=Kemeralt%C4%B1%20%C3%87ar%C5%9F%C4%B1s%C4%B1%2C%20Konak%2C%20%C4%B0zmir&z=16&output=embed"></iframe></div>
+      </div>
+    </div>
+  </section>
+
+  <footer><b>Asmalı Fırın</b>Kemeraltı · 1968'den beri · Bu site Acar Yazılım tarafından örnek olarak hazırlanmıştır.</footer>
+
+  <div class="lightbox" id="lightbox"><img alt="" /></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    // Çalışma saatleri (0 = Pazar)
+    const hours = { 1: ["06:00", "21:00"], 2: ["06:00", "21:00"], 3: ["06:00", "21:00"], 4: ["06:00", "21:00"], 5: ["06:00", "21:00"], 6: ["06:00", "22:00"], 0: ["07:00", "14:00"] };
+    const names = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+    const now = new Date(), d = now.getDay();
+    const toMin = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const [o, c] = hours[d];
+    const isOpen = nowMin >= toMin(o) && nowMin < toMin(c);
+    $("openNow").classList.toggle("closed", !isOpen);
+    $("openNow").querySelector("span").textContent = isOpen ? "Şu an açık · " + c + "'e kadar" : "Şu an kapalı · " + (nowMin < toMin(o) ? "bugün " + o : "yarın " + hours[(d + 1) % 7][0]) + "'da açılıyor";
+    $("hours").innerHTML = [1, 2, 3, 4, 5, 6, 0].map(k => `<tr class="${k === d ? "today" : ""}"><td>${names[k]}</td><td>${hours[k][0]} – ${hours[k][1]}</td></tr>`).join("");
+
+    const outs = [["Gevrek", "06:30"], ["Ekmek", "07:00"], ["Poğaça", "07:30"], ["Gevrek", "11:00"], ["Ekmek", "12:30"], ["Gevrek", "16:00"]];
+    const next = outs.find(x => toMin(x[1]) > nowMin);
+    $("times").innerHTML = outs.map(x => `<div class="${x === next ? "next" : ""}"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("");
+
+    $("burger").addEventListener("click", () => $("links").classList.toggle("open"));
+    $("links").addEventListener("click", e => { if (e.target.closest("a")) $("links").classList.remove("open"); });
+
+    $("gallery").addEventListener("click", e => {
+      const img = e.target.closest("img"); if (!img) return;
+      $("lightbox").querySelector("img").src = img.src; $("lightbox").classList.add("open");
+    });
+    $("lightbox").addEventListener("click", () => $("lightbox").classList.remove("open"));
+  </script>
+</body>
+</html>

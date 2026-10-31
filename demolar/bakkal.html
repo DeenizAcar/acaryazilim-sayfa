@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Güneş Bakkal — Veresiye Defteri (Demo)</title>
+  <meta name="theme-color" content="#14532d" />
+  <link rel="stylesheet" href="demo.css" />
+  <style>
+    :root { --green: #14532d; --green-2: #1f8a4c; --sun: #f5b72a; --bg: #eef1ec; --line: #e2e7df; --muted: #66705f; --text: #1b2416; --red: #c62828; }
+    body { background: #dfe5dc; color: var(--text); }
+    .app { max-width: 520px; margin: 0 auto; min-height: calc(100vh - 37px); background: var(--bg); position: relative; padding-bottom: 90px; box-shadow: 0 0 40px rgba(0,0,0,.08); }
+    .top { position: relative; color: #fff; padding: 22px 18px 20px; overflow: hidden; }
+    .top img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .top::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(20,83,45,.92), rgba(20,60,30,.85)); z-index: 1; }
+    .top > *:not(img) { position: relative; z-index: 2; }
+    .shop { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+    .shop .sun { width: 38px; height: 38px; border-radius: 12px; background: var(--sun); display: grid; place-items: center; font-size: 20px; }
+    .shop small { display: block; font-weight: 600; font-size: 12px; opacity: .8; }
+    .big { margin-top: 18px; }
+    .big small { opacity: .8; font-weight: 600; }
+    .big b { display: block; font-size: 36px; letter-spacing: -.02em; }
+    .mini { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .mini div { background: rgba(255,255,255,.14); border-radius: 12px; padding: 8px 10px; font-size: 12px; font-weight: 600; }
+    .mini b { display: block; font-size: 15px; }
+    .tools { display: flex; gap: 8px; padding: 14px 16px 6px; }
+    .tools input { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; font-size: 15px; background: #fff; }
+    .tools select { padding: 0 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-weight: 700; font-size: 13px; }
+    .list { padding: 6px 16px; }
+    .cust { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 16px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid var(--line); cursor: pointer; width: 100%; text-align: left; }
+    .av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; flex-shrink: 0; }
+    .cust .n { flex: 1; min-width: 0; }
+    .cust b { display: block; font-size: 15.5px; }
+    .cust small { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+    .amt { font-weight: 800; font-size: 16px; text-align: right; }
+    .amt.red { color: var(--red); }
+    .amt.ok { color: var(--green-2); font-size: 13px; }
+    .amt small { display: block; font-size: 11px; color: #b4600f; font-weight: 700; }
+    .fab { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 488px; border: 0; background: var(--green); color: #fff; padding: 16px; border-radius: 16px; font-weight: 800; font-size: 16px; box-shadow: 0 12px 30px rgba(20,83,45,.35); z-index: 30; }
+
+    .detail { position: fixed; inset: 0; z-index: 1100; background: var(--bg); overflow-y: auto; transform: translateX(100%); transition: transform .25s ease; }
+    .detail.open { transform: none; }
+    .detail-in { max-width: 520px; margin: 0 auto; padding-bottom: 30px; min-height: 100%; background: var(--bg); }
+    .d-head { background: var(--green); color: #fff; padding: 14px 16px 22px; }
+    .d-head button.backb { background: rgba(255,255,255,.15); border: 0; color: #fff; padding: 8px 12px; border-radius: 10px; font-weight: 700; margin-bottom: 14px; }
+    .d-who { display: flex; align-items: center; gap: 12px; }
+    .d-who b { font-size: 20px; display: block; }
+    .d-who small { opacity: .8; }
+    .d-bal { margin-top: 16px; background: #fff; color: var(--text); border-radius: 16px; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .d-bal b { font-size: 26px; color: var(--red); }
+    .d-bal b.zero { color: var(--green-2); }
+    .d-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 16px 4px; }
+    .d-actions button { border: 0; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 15px; }
+    .debt-btn { background: #fde8e8; color: var(--red); }
+    .pay-btn { background: #e3f4e9; color: var(--green-2); }
+    .remind { grid-column: 1 / -1; background: #fff !important; border: 1px solid var(--line) !important; color: var(--text); }
+    .hist { padding: 10px 16px; }
+    .hist h3 { font-size: 15px; color: var(--muted); margin: 8px 0; }
+    .h-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border-radius: 14px; margin-bottom: 6px; border: 1px solid var(--line); }
+    .h-ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; font-size: 16px; }
+    .h-ic.d { background: #fde8e8; }
+    .h-ic.p { background: #e3f4e9; }
+    .h-row .n { flex: 1; }
+    .h-row b { display: block; font-size: 14.5px; }
+    .h-row small { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .h-amt { font-weight: 800; }
+    .h-amt.d { color: var(--red); }
+    .h-amt.p { color: var(--green-2); }
+    label { display: grid; gap: 5px; font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+    label input { padding: 13px; border: 1px solid var(--line); border-radius: 12px; font-size: 17px; }
+    .quick-amts { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 12px; }
+    .quick-amts button { border: 1px solid var(--line); background: #fff; padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+    .save { width: 100%; border: 0; padding: 15px; border-radius: 14px; font-weight: 800; font-size: 16px; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">
+    <a class="back" href="./">← Demolar</a>
+    <span class="note">Örnek uygulamadır · Güneş Bakkal gerçek bir dükkan değildir</span>
+    <a class="cta" href="https://wa.me/905333784212?text=Merhaba%2C%20veresiye%20defteri%20demonuzu%20g%C3%B6rd%C3%BCm.%20Bilgi%20almak%20istiyorum." target="_blank" rel="noopener"><span class="long">Dükkanıma da </span>İstiyorum</a>
+  </div>
+
+  <div class="app">
+    <div class="top">
+      <img src="img/bakkal-kapak.jpg" alt="" />
+      <div class="shop"><span class="sun">☀️</span><div>Güneş Bakkal<small>Veresiye Defteri · Buca</small></div></div>
+      <div class="big"><small>Toplam alacak</small><b id="total"></b></div>
+      <div class="mini">
+        <div>Borçlu müşteri<b id="mDebtors"></b></div>
+        <div>Bu ay tahsilat<b id="mPaid"></b></div>
+        <div>30 günü geçen<b id="mOld"></b></div>
+      </div>
+    </div>
+    <div class="tools">
+      <input id="search" type="search" placeholder="Müşteri ara…" />
+      <select id="sort" aria-label="Sırala"><option value="debt">En çok borç</option><option value="name">İsme göre</option><option value="old">En eski borç</option></select>
+    </div>
+    <div class="list" id="list"></div>
+  </div>
+  <button class="fab" id="newCust">+ Yeni müşteri</button>
+
+  <div class="detail" id="detail"><div class="detail-in" id="detailIn"></div></div>
+
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <div class="modal-head"><span id="mTitle"></span><button class="modal-close" data-close>×</button></div>
+      <div class="modal-body" id="mBody"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const tl = n => "₺" + n.toLocaleString("tr-TR");
+    const colors = ["#1f8a4c", "#c2410c", "#7c3aed", "#0e7490", "#b91c1c", "#a16207", "#4f46e5", "#be185d"];
+    const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); d.setHours(9 + (n * 7) % 10, (n * 13) % 60); return d; };
+    const customers = [
+      { ad: "Hasan Usta", tel: "0532 *** ** 11", h: [["d", 850, "Haftalık alışveriş", 34], ["p", 500, "Nakit ödeme", 20], ["d", 640, "Ekmek, süt, yumurta", 9], ["d", 250, "Sigara, çay", 3]] },
+      { ad: "Fatma Teyze", tel: "0505 *** ** 42", h: [["d", 210, "Sebze meyve", 6], ["d", 175, "Ekmek, peynir", 1]] },
+      { ad: "Kemal Bey", tel: "0542 *** ** 07", h: [["d", 1200, "Ay başı alışverişi", 46], ["d", 950, "Deterjan, yağ, un", 38], ["p", 1000, "Havale", 15]] },
+      { ad: "Zeynep Hanım", tel: "0533 *** ** 90", h: [["d", 430, "Kahvaltılık", 12], ["p", 430, "Nakit ödeme", 0]] },
+      { ad: "Murat (Berber)", tel: "0555 *** ** 64", h: [["d", 320, "Çay, şeker", 8], ["d", 320, "Su, kola", 5]] },
+      { ad: "Ayten Hanım", tel: "0536 *** ** 28", h: [["d", 780, "Haftalık alışveriş", 40], ["p", 200, "Nakit ödeme", 25]] },
+      { ad: "Ali (Apartman görevlisi)", tel: "0507 *** ** 53", h: [["d", 95, "Ekmek, gazete", 2]] },
+      { ad: "Sevgi Öğretmen", tel: "0544 *** ** 19", h: [["d", 260, "Kırtasiye, meyve", 14], ["p", 260, "Kart ile ödeme", 10]] }
+    ].map((c, i) => ({ ...c, c: colors[i % colors.length], h: c.h.map(([t, a, n, g]) => ({ t, a, n, d: daysAgo(g) })) }));
+    let current = null;
+
+    const bal = c => c.h.reduce((s, x) => s + (x.t === "d" ? x.a : -x.a), 0);
+    const lastDebtAge = c => { const ds = c.h.filter(x => x.t === "d"); return ds.length ? Math.floor((Date.now() - Math.min(...ds.map(x => +x.d))) / 864e5) : 0; };
+    const ini = n => n.split(" ").filter(w => w[0] && w[0] !== "(").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+    const fmtDate = d => d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" }) + " " + d.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+    function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2500); }
+    function openModal(title, html) { $("mTitle").textContent = title; $("mBody").innerHTML = html; $("modal").classList.add("open"); }
+    const closeModal = () => $("modal").classList.remove("open");
+    $("modal").addEventListener("click", e => { if (e.target === $("modal") || e.target.hasAttribute("data-close")) closeModal(); });
+
+    function renderList() {
+      const q = $("search").value.trim().toLocaleLowerCase("tr-TR");
+      const s = $("sort").value;
+      const rows = customers.filter(c => c.ad.toLocaleLowerCase("tr-TR").includes(q));
+      rows.sort((a, b) => s === "name" ? a.ad.localeCompare(b.ad, "tr") : s === "old" ? (bal(b) > 0) - (bal(a) > 0) || lastDebtAge(b) - lastDebtAge(a) : bal(b) - bal(a));
+      $("list").innerHTML = rows.map(c => {
+        const b = bal(c), last = c.h[c.h.length - 1], age = lastDebtAge(c);
+        return `<button class="cust" data-i="${customers.indexOf(c)}">
+          <span class="av" style="background:${c.c}">${ini(c.ad)}</span>
+          <span class="n"><b>${c.ad}</b><small>Son işlem: ${fmtDate(last.d)}</small></span>
+          <span class="amt ${b > 0 ? "red" : "ok"}">${b > 0 ? tl(b) : "Borcu yok ✓"}${b > 0 && age > 30 ? `<small>${age} gündür</small>` : ""}</span>
+        </button>`;
+      }).join("") || '<p style="text-align:center;color:var(--muted);padding:30px">Müşteri bulunamadı</p>';
+      const all = customers.map(bal);
+      $("total").textContent = tl(all.reduce((a, b) => a + Math.max(b, 0), 0));
+      $("mDebtors").textContent = all.filter(b => b > 0).length + " kişi";
+      const m = new Date().getMonth();
+      $("mPaid").textContent = tl(customers.flatMap(c => c.h).filter(x => x.t === "p" && x.d.getMonth() === m).reduce((s, x) => s + x.a, 0));
+      $("mOld").textContent = customers.filter(c => bal(c) > 0 && lastDebtAge(c) > 30).length + " kişi";
+    }
+    $("search").addEventListener("input", renderList);
+    $("sort").addEventListener("change", renderList);
+    $("list").addEventListener("click", e => { const b = e.target.closest(".cust"); if (b) openDetail(+b.dataset.i); });
+
+    function openDetail(i) { current = i; renderDetail(); $("detail").classList.add("open"); $("detail").scrollTop = 0; }
+    function renderDetail() {
+      const c = customers[current], b = bal(c);
+      $("detailIn").innerHTML = `
+        <div class="d-head">
+          <button class="backb" data-act="close">← Geri</button>
+          <div class="d-who"><span class="av" style="background:${c.c};border:2px solid rgba(255,255,255,.5)">${ini(c.ad)}</span><div><b>${c.ad}</b><small>${c.tel}</small></div></div>
+          <div class="d-bal"><span style="font-weight:700">Güncel borç</span><b class="${b > 0 ? "" : "zero"}">${b > 0 ? tl(b) : "₺0"}</b></div>
+        </div>
+        <div class="d-actions">
+          <button class="debt-btn" data-act="debt">➕ Borç yaz</button>
+          <button class="pay-btn" data-act="pay">✓ Ödeme al</button>
+          ${b > 0 ? `<button class="remind" data-act="remind">💬 WhatsApp'tan nazikçe hatırlat</button>` : ""}
+        </div>
+        <div class="hist"><h3>Hesap geçmişi</h3>
+          ${[...c.h].reverse().map(x => `<div class="h-row">
+            <span class="h-ic ${x.t}">${x.t === "d" ? "🛒" : "💵"}</span>
+            <span class="n"><b>${x.n}</b><small>${fmtDate(x.d)}</small></span>
+            <span class="h-amt ${x.t}">${x.t === "d" ? "+" : "−"}${tl(x.a)}</span></div>`).join("")}
+        </div>`;
+    }
+    $("detailIn").addEventListener("click", e => {
+      const b = e.target.closest("[data-act]"); if (!b) return;
+      const c = customers[current], act = b.dataset.act;
+      if (act === "close") { $("detail").classList.remove("open"); renderList(); }
+      if (act === "debt" || act === "pay") {
+        const isDebt = act === "debt";
+        openModal(isDebt ? "Borç yaz · " + c.ad : "Ödeme al · " + c.ad, `
+          <form id="txForm">
+            <label>Tutar (₺) <input id="txAmt" type="number" min="1" required inputmode="numeric" ${isDebt ? "" : `value="${Math.max(bal(c), 0)}"`} /></label>
+            <div class="quick-amts">${(isDebt ? [50, 100, 250, 500] : [100, 250, 500, Math.max(bal(c), 0)]).filter((v, i, a) => v > 0 && a.indexOf(v) === i).map(v => `<button type="button" data-v="${v}">${tl(v)}</button>`).join("")}</div>
+            <label>Not <input id="txNote" placeholder="${isDebt ? "Ör. Ekmek, süt" : "Ör. Nakit"}" style="font-size:15px" /></label>
+            <button class="save" style="background:${isDebt ? "var(--red)" : "var(--green-2)"}">${isDebt ? "Borcu kaydet" : "Ödemeyi kaydet"}</button>
+          </form>`);
+        $("mBody").querySelector(".quick-amts").addEventListener("click", ev => { const q = ev.target.closest("[data-v]"); if (q) $("txAmt").value = q.dataset.v; });
+        $("txForm").addEventListener("submit", ev => {
+          ev.preventDefault();
+          const a = +$("txAmt").value;
+          c.h.push({ t: isDebt ? "d" : "p", a, n: $("txNote").value.trim() || (isDebt ? "Alışveriş" : "Nakit ödeme"), d: new Date() });
+          closeModal(); renderDetail(); renderList();
+          toast(isDebt ? tl(a) + " borç yazıldı" : tl(a) + " ödeme alındı, kalan: " + tl(Math.max(bal(c), 0)));
+        });
+        setTimeout(() => $("txAmt").focus(), 50);
+      }
+      if (act === "remind") {
+        const msg = `Merhaba ${c.ad.split(" ")[0]} 🙂\nGüneş Bakkal'dan yazıyoruz. Hesabınızda ${tl(bal(c))} bakiye bulunuyor. Müsait olduğunuzda uğrarsanız seviniriz.\nİyi günler dileriz ☀️`;
+        openModal("Hatırlatma mesajı", `<div class="wa-preview"><div class="wa-bubble">${msg}</div></div><p class="wa-note">Tek tuşla müşterinin WhatsApp'ına gönderilir. Demo olduğu için mesaj gönderilmez.</p>`);
+      }
+    });
+
+    $("newCust").addEventListener("click", () => {
+      openModal("Yeni müşteri", `
+        <form id="custForm">
+          <label>Ad soyad <input id="cAd" required placeholder="Ör. Yusuf Bey" style="font-size:15px" /></label>
+          <label>Telefon <input id="cTel" placeholder="05xx xxx xx xx" inputmode="tel" style="font-size:15px" /></label>
+          <label>Açılış borcu (varsa) <input id="cBorc" type="number" min="0" placeholder="0" /></label>
+          <button class="save" style="background:var(--green)">Kaydet</button>
+        </form>`);
+      $("custForm").addEventListener("submit", ev => {
+        ev.preventDefault();
+        const borc = +$("cBorc").value || 0;
+        customers.push({ ad: $("cAd").value.trim(), tel: $("cTel").value.trim() || "-", c: colors[customers.length % colors.length],
+          h: [borc ? { t: "d", a: borc, n: "Açılış borcu", d: new Date() } : { t: "p", a: 0, n: "Hesap açıldı", d: new Date() }] });
+        closeModal(); renderList(); toast("Müşteri eklendi");
+      });
+    });
+
+    renderList();
+  </script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kordon Kafe — QR Menü (Demo)</title>
+  <meta name="theme-color" content="#5a3220" />
+  <link rel="stylesheet" href="demo.css" />
+  <style>
+    :root { --brown: #5a3220; --brown-2: #8a4b2a; --cream: #faf6f1; --muted: #7a6a5f; --line: #ece3da; --text: #2b1d14; --green: #2e8b57; }
+    body { background: #e9e1d8; color: var(--text); }
+    .app { max-width: 480px; margin: 0 auto; background: var(--cream); min-height: 100vh; position: relative; padding-bottom: 96px; box-shadow: 0 0 40px rgba(0,0,0,.08); }
+    .hero { position: relative; height: 230px; overflow: hidden; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; }
+    .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.1), rgba(30,15,5,.78)); }
+    .hero-text { position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 1; color: #fff; }
+    .hero-text h1 { font-size: 28px; letter-spacing: -.02em; }
+    .hero-text .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; font-size: 13px; font-weight: 600; }
+    .hero-text .meta span { background: rgba(255,255,255,.18); backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 999px; }
+    .lang { position: absolute; top: 14px; right: 14px; z-index: 2; display: flex; background: rgba(255,255,255,.92); border-radius: 999px; padding: 3px; }
+    .lang button { border: 0; background: none; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 800; color: var(--muted); }
+    .lang button.on { background: var(--brown); color: #fff; }
+    .cats { position: sticky; top: 44px; z-index: 5; background: var(--cream); display: flex; gap: 8px; overflow-x: auto; padding: 12px 16px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .cats::-webkit-scrollbar { display: none; }
+    .cats button { border: 1px solid var(--line); background: #fff; padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .cats button.on { background: var(--brown); border-color: var(--brown); color: #fff; }
+    .section { padding: 18px 16px 4px; scroll-margin-top: 100px; }
+    .section h2 { font-size: 19px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .item { display: flex; gap: 14px; background: #fff; border-radius: 16px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--line); cursor: pointer; transition: transform .15s; position: relative; }
+    .item:active { transform: scale(.99); }
+    .item img { width: 92px; height: 92px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+    .item .body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .item h3 { font-size: 15.5px; line-height: 1.25; }
+    .item p { font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.35; flex: 1; }
+    .item .bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+    .price { font-weight: 800; color: var(--brown-2); font-size: 16px; }
+    .badge { font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: #fff0e0; color: #b4600f; }
+    .badge.new { background: #e6f5ec; color: var(--green); }
+    .item.out { opacity: .55; }
+    .item.out img { filter: grayscale(1); }
+    .item.out .price { text-decoration: line-through; color: var(--muted); }
+    .out-label { display: none; font-size: 11px; font-weight: 800; color: #b42318; background: #fde8e8; padding: 3px 8px; border-radius: 999px; }
+    .item.out .out-label { display: inline-block; }
+
+    /* yönetici */
+    .admin-row { display: none; gap: 8px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+    .admin .admin-row { display: flex; }
+    .admin-row input { width: 80px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; font-weight: 700; }
+    .admin-row label { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px; color: var(--muted); }
+    .admin-box { margin: 18px 16px; background: #fff; border: 1px dashed var(--brown-2); border-radius: 16px; padding: 14px; font-size: 13.5px; }
+    .admin-box b { display: block; margin-bottom: 4px; }
+    .switch { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; font-weight: 700; }
+    .switch input { width: 46px; height: 26px; appearance: none; background: #d8cfc6; border-radius: 999px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; }
+    .switch input::after { content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: left .2s; }
+    .switch input:checked { background: var(--green); }
+    .switch input:checked::after { left: 23px; }
+
+    .info { margin: 8px 16px 0; padding: 16px; background: #fff; border-radius: 16px; border: 1px solid var(--line); font-size: 13.5px; color: var(--muted); display: grid; gap: 6px; }
+    .info b { color: var(--text); }
+
+    .actions { position: fixed; left: 50%; transform: translateX(-50%); bottom: 14px; width: calc(100% - 28px); max-width: 452px; display: flex; gap: 10px; z-index: 20; }
+    .actions button { flex: 1; border: 0; padding: 15px; border-radius: 14px; font-weight: 800; font-size: 15px; box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+    .actions .call { background: var(--brown); color: #fff; }
+    .actions .bill { background: #fff; color: var(--brown); }
+
+    .detail img { width: 100%; height: 240px; object-fit: cover; border-radius: 14px; margin-bottom: 14px; }
+    .detail h3 { font-size: 21px; }
+    .detail p { color: var(--muted); margin: 6px 0 12px; }
+    .detail .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .detail .tags span { font-size: 12px; font-weight: 700; background: var(--cream); padding: 5px 10px; border-radius: 999px; color: var(--muted); }
+    .detail .price { font-size: 22px; }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">
+    <a class="back" href="./">← Demolar</a>
+    <span class="note">Örnek uygulamadır · Kordon Kafe gerçek bir dükkan değildir</span>
+    <a class="cta" href="https://wa.me/905333784212?text=Merhaba%2C%20QR%20men%C3%BC%20demonuzu%20g%C3%B6rd%C3%BCm.%20D%C3%BCkkan%C4%B1m%20i%C3%A7in%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener"><span class="long">Dükkanıma da </span>İstiyorum</a>
+  </div>
+
+  <div class="app" id="app">
+    <div class="hero">
+      <img src="img/kafe-kapak.jpg" alt="Kordon Kafe" />
+      <div class="lang"><button data-l="tr" class="on">TR</button><button data-l="en">EN</button></div>
+      <div class="hero-text">
+        <h1>Kordon Kafe</h1>
+        <div class="meta"><span>📍 Alsancak</span><span id="tableLabel">Masa 4</span><span>📶 Wi-Fi: kordon2024</span></div>
+      </div>
+    </div>
+
+    <nav class="cats" id="cats"></nav>
+    <div id="menu"></div>
+
+    <div class="admin-box">
+      <b>🔑 Dükkan sahibi görünümü</b>
+      Müşteri bunu görmez. Açınca fiyatları değiştirebilir, biten ürünü tek dokunuşla "Tükendi" yapabilirsiniz.
+      <label class="switch">Yönetici modunu aç <input type="checkbox" id="adminToggle" /></label>
+    </div>
+
+    <div class="info">
+      <div><b>Çalışma saatleri:</b> Her gün 08:00 – 24:00</div>
+      <div><b>Adres:</b> Kordon boyu, Alsancak / İzmir (örnek)</div>
+      <div>Fiyatlarımıza KDV dahildir. Alerjen bilgisi için ürüne dokunun.</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="call" id="callWaiter">🔔 Garson Çağır</button>
+    <button class="bill" id="askBill">🧾 Hesap İste</button>
+  </div>
+
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <div class="modal-head"><span id="mTitle"></span><button class="modal-close" data-close>×</button></div>
+      <div class="modal-body detail" id="mBody"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const T = {
+      tr: { call: "🔔 Garson Çağır", bill: "🧾 Hesap İste", table: "Masa 4", called: "Garson çağrıldı, hemen geliyor 👍", billed: "Hesabınız masanıza getiriliyor 🧾", out: "Tükendi", allergen: "Alerjen", none: "Belirtilmemiş" },
+      en: { call: "🔔 Call Waiter", bill: "🧾 Ask for Bill", table: "Table 4", called: "Waiter is on the way 👍", billed: "Your bill is coming 🧾", out: "Sold out", allergen: "Allergens", none: "None listed" }
+    };
+    const menu = [
+      { id: "kahvalti", tr: "Kahvaltı", en: "Breakfast", icon: "🍳", items: [
+        { img: "kafe-serpme", tr: ["Serpme Kahvaltı (2 kişilik)", "Ege otları, köy peyniri, zeytin çeşitleri, bal-kaymak, sınırsız çay"], en: ["Turkish Breakfast Spread (for 2)", "Aegean herbs, village cheese, olives, honey & cream, unlimited tea"], price: 650, badge: "pop", al: "Süt, yumurta, gluten" },
+        { img: "kafe-menemen", tr: ["Menemen", "Domates, biber ve köy yumurtası, tavada"], en: ["Menemen", "Tomatoes, peppers and free-range eggs in a pan"], price: 160, al: "Yumurta" },
+        { img: "kafe-tost", tr: ["Kaşarlı Tost", "Köy ekmeğinde bol kaşarlı, yanında turşu"], en: ["Cheese Toast", "Village bread with melted kashar cheese"], price: 120, al: "Süt, gluten" },
+        { img: "kafe-simit", tr: ["Simit Tabağı", "Taze simit, beyaz peynir, domates, salatalık"], en: ["Simit Plate", "Fresh simit, white cheese, tomato, cucumber"], price: 95, badge: "new", al: "Süt, gluten, susam" }
+      ]},
+      { id: "sicak", tr: "Sıcak İçecekler", en: "Hot Drinks", icon: "☕", items: [
+        { img: "kafe-turk-kahvesi", tr: ["Türk Kahvesi", "Közde pişirilir, lokum ile servis edilir"], en: ["Turkish Coffee", "Slow-brewed, served with Turkish delight"], price: 60, badge: "pop", al: "" },
+        { img: "kafe-cay", tr: ["Demleme Çay", "İnce belli bardakta"], en: ["Turkish Tea", "Served in a tulip glass"], price: 20, al: "" },
+        { img: "kafe-latte", tr: ["Latte", "Çift shot espresso, ipeksi süt köpüğü"], en: ["Latte", "Double espresso with silky milk foam"], price: 95, al: "Süt" }
+      ]},
+      { id: "soguk", tr: "Soğuk İçecekler", en: "Cold Drinks", icon: "🧊", items: [
+        { img: "kafe-limonata", tr: ["Ev Yapımı Limonata", "Taze sıkım limon, nane"], en: ["Homemade Lemonade", "Fresh lemons and mint"], price: 70, badge: "pop", al: "" },
+        { img: "kafe-ice-latte", tr: ["Buzlu Latte", "Espresso, soğuk süt, buz"], en: ["Iced Latte", "Espresso, cold milk, ice"], price: 105, al: "Süt" }
+      ]},
+      { id: "tatli", tr: "Tatlılar", en: "Desserts", icon: "🍰", items: [
+        { img: "kafe-baklava", tr: ["Fıstıklı Baklava", "4 dilim, Antep fıstıklı"], en: ["Pistachio Baklava", "4 pieces with Antep pistachio"], price: 140, al: "Gluten, süt, fıstık" },
+        { img: "kafe-cheesecake", tr: ["San Sebastian Cheesecake", "Kremamsı iç, karamelize dış"], en: ["San Sebastian Cheesecake", "Creamy inside, caramelised top"], price: 165, badge: "new", al: "Süt, yumurta" },
+        { img: "kafe-sutlac", tr: ["Fırın Sütlaç", "Geleneksel tarif, tarçınlı"], en: ["Baked Rice Pudding", "Traditional recipe with cinnamon"], price: 90, al: "Süt" }
+      ]}
+    ];
+    let lang = "tr", admin = false;
+    const tl = n => "₺" + n.toLocaleString("tr-TR");
+    const $ = id => document.getElementById(id);
+
+    function render() {
+      $("cats").innerHTML = menu.map((c, i) => `<button data-c="${c.id}" class="${i === 0 ? "on" : ""}">${c.icon} ${c[lang]}</button>`).join("");
+      $("menu").innerHTML = menu.map((c, ci) => `
+        <section class="section" id="${c.id}">
+          <h2>${c.icon} ${c[lang]}</h2>
+          ${c.items.map((it, ii) => `
+            <div class="item ${it.out ? "out" : ""}" data-c="${ci}" data-i="${ii}">
+              <img src="img/${it.img}.jpg" alt="" loading="lazy" />
+              <div class="body">
+                <h3>${it[lang][0]}</h3>
+                <p>${it[lang][1]}</p>
+                <div class="bottom">
+                  <span class="price">${tl(it.price)}</span>
+                  <span>
+                    <span class="out-label">${T[lang].out}</span>
+                    ${!it.out && it.badge === "pop" ? `<span class="badge">⭐ ${lang === "tr" ? "Çok satan" : "Popular"}</span>` : ""}
+                    ${!it.out && it.badge === "new" ? `<span class="badge new">${lang === "tr" ? "Yeni" : "New"}</span>` : ""}
+                  </span>
+                </div>
+                <div class="admin-row" data-stop>
+                  <input type="number" value="${it.price}" min="0" data-price aria-label="Fiyat" /> ₺
+                  <label><input type="checkbox" data-out ${it.out ? "checked" : ""} /> Tükendi</label>
+                </div>
+              </div>
+            </div>`).join("")}
+        </section>`).join("");
+      $("callWaiter").textContent = T[lang].call;
+      $("askBill").textContent = T[lang].bill;
+      $("tableLabel").textContent = T[lang].table;
+    }
+
+    function toast(msg) {
+      const t = $("toast"); t.textContent = msg; t.classList.add("show");
+      clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2400);
+    }
+
+    document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => {
+      lang = b.dataset.l;
+      document.querySelectorAll(".lang button").forEach(x => x.classList.toggle("on", x === b));
+      render();
+    }));
+
+    $("cats").addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      $("cats").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+      document.getElementById(b.dataset.c).scrollIntoView({ behavior: "smooth" });
+    });
+
+    $("menu").addEventListener("click", e => {
+      if (e.target.closest("[data-stop]")) return;
+      const el = e.target.closest(".item"); if (!el) return;
+      const it = menu[el.dataset.c].items[el.dataset.i];
+      $("mTitle").textContent = it[lang][0];
+      $("mBody").innerHTML = `
+        <img src="img/${it.img}.jpg" alt="" />
+        <h3>${it[lang][0]}</h3>
+        <p>${it[lang][1]}</p>
+        <div class="tags"><span>${T[lang].allergen}: ${it.al || T[lang].none}</span>${it.out ? `<span>${T[lang].out}</span>` : ""}</div>
+        <div class="price">${tl(it.price)}</div>`;
+      $("modal").classList.add("open");
+    });
+
+    $("menu").addEventListener("change", e => {
+      const el = e.target.closest(".item"); if (!el) return;
+      const it = menu[el.dataset.c].items[el.dataset.i];
+      if (e.target.matches("[data-price]")) { it.price = Math.max(0, +e.target.value || 0); toast("Fiyat güncellendi: " + it.tr[0] + " → " + tl(it.price)); }
+      if (e.target.matches("[data-out]")) { it.out = e.target.checked; toast(it.out ? it.tr[0] + " tükendi olarak işaretlendi" : it.tr[0] + " tekrar satışta"); }
+      render();
+    });
+
+    $("adminToggle").addEventListener("change", e => {
+      admin = e.target.checked;
+      $("app").classList.toggle("admin", admin);
+      toast(admin ? "Yönetici modu açık: fiyatları değiştirmeyi deneyin" : "Müşteri görünümüne dönüldü");
+    });
+
+    $("modal").addEventListener("click", e => { if (e.target === $("modal") || e.target.hasAttribute("data-close")) $("modal").classList.remove("open"); });
+    $("callWaiter").addEventListener("click", () => toast(T[lang].called));
+    $("askBill").addEventListener("click", () => toast(T[lang].billed));
+
+    // kaydırınca aktif kategori
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) $("cats").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.c === en.target.id));
+      });
+    }, { rootMargin: "-120px 0px -60% 0px" });
+    function observe() { document.querySelectorAll(".section").forEach(s => io.observe(s)); }
+    const _render = render; render = function () { _render(); io.disconnect(); observe(); };
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ege Sofrası Lokantası — Adisyon ve Kasa (Demo)</title>
+  <meta name="theme-color" content="#7a2e1d" />
+  <link rel="stylesheet" href="demo.css" />
+  <style>
+    :root { --red: #7a2e1d; --red-2: #b2472b; --bg: #f4efe9; --line: #e6ddd2; --muted: #75685c; --text: #2b211a; --green: #1f8a4c; --blue: #2563eb; --amber: #d97706; }
+    body { background: var(--bg); color: var(--text); }
+    .top { position: relative; color: #fff; overflow: hidden; }
+    .top img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .top::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(90,30,15,.95), rgba(90,30,15,.7)); z-index: 1; }
+    .top-in { position: relative; z-index: 2; padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    .brand b { font-size: 20px; display: block; }
+    .brand small { opacity: .8; font-weight: 600; }
+    .tabs { display: flex; gap: 6px; background: rgba(255,255,255,.12); padding: 4px; border-radius: 12px; }
+    .tabs button { border: 0; background: none; color: #fff; padding: 9px 14px; border-radius: 9px; font-weight: 700; font-size: 14px; opacity: .85; }
+    .tabs button.on { background: #fff; color: var(--red); opacity: 1; }
+    .view[hidden] { display: none; }
+    .pos { display: grid; grid-template-columns: 1fr 420px; min-height: calc(100vh - 120px); }
+    .tables-wrap { padding: 18px 20px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; font-weight: 700; color: var(--muted); margin-bottom: 12px; }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+    .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+    .table { border: 2px solid var(--line); background: #fff; border-radius: 16px; padding: 14px 10px; text-align: center; min-height: 104px; display: flex; flex-direction: column; justify-content: center; gap: 2px; transition: transform .1s; }
+    .table:active { transform: scale(.97); }
+    .table b { font-size: 20px; }
+    .table small { font-size: 12.5px; font-weight: 700; color: var(--muted); }
+    .table .amt { font-weight: 800; font-size: 15px; }
+    .table.busy { background: #fff3ea; border-color: #f1b48f; }
+    .table.busy .amt { color: var(--red-2); }
+    .table.bill { background: #eaf1ff; border-color: #9db8f2; }
+    .table.sel { outline: 3px solid var(--red); outline-offset: 2px; }
+
+    .order { background: #fff; border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+    .o-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    .o-head b { font-size: 19px; }
+    .o-head small { color: var(--muted); font-weight: 600; display: block; }
+    .menu-cats { display: flex; gap: 6px; overflow-x: auto; padding: 10px 16px; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+    .menu-cats button { border: 1px solid var(--line); background: #fff; padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .menu-cats button.on { background: var(--red); border-color: var(--red); color: #fff; }
+    .menu-items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px 16px; }
+    .mi { border: 1px solid var(--line); background: #fdfaf6; border-radius: 12px; padding: 8px 4px; font-size: 12.5px; font-weight: 700; line-height: 1.25; }
+    .mi .e { font-size: 22px; display: block; }
+    .mi span { color: var(--red-2); font-weight: 800; }
+    .mi:active { background: #f6e7dc; }
+    .lines { flex: 1; overflow-y: auto; padding: 4px 16px; min-height: 120px; border-top: 1px solid var(--line); }
+    .ln { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+    .ln .n { flex: 1; font-weight: 700; }
+    .ln .n small { display: block; font-size: 11.5px; font-weight: 700; }
+    .ln .n small.sent { color: var(--green); }
+    .ln .n small.new { color: var(--amber); }
+    .ln .q { display: flex; align-items: center; gap: 6px; font-weight: 800; }
+    .ln .q button { width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--line); background: #fff; font-weight: 800; }
+    .ln .t { width: 68px; text-align: right; font-weight: 800; }
+    .o-foot { padding: 12px 16px 16px; border-top: 1px solid var(--line); }
+    .o-total { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; margin-bottom: 10px; }
+    .o-total b { font-size: 26px; color: var(--red); }
+    .o-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .o-btns button { border: 0; padding: 14px 8px; border-radius: 12px; font-weight: 800; font-size: 15px; }
+    .kitchen { background: #fff3e0; color: var(--amber); }
+    .pay { background: var(--red); color: #fff; }
+    .o-btns button:disabled { opacity: .4; cursor: not-allowed; }
+    .placeholder { flex: 1; display: grid; place-items: center; text-align: center; color: var(--muted); padding: 40px 20px; font-weight: 600; }
+    .placeholder .big { font-size: 48px; }
+
+    .receipt { font-family: ui-monospace, Consolas, monospace; font-size: 13.5px; background: #fffdf7; border: 1px dashed #cdbfa9; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+    .receipt .r { display: flex; justify-content: space-between; }
+    .receipt hr { border: 0; border-top: 1px dashed #cdbfa9; margin: 8px 0; }
+    .paybtns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .paybtns button { border: 0; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 15px; color: #fff; }
+
+    .report { max-width: 1000px; margin: 0 auto; padding: 22px 20px 50px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .kpi { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+    .kpi small { color: var(--muted); font-weight: 700; font-size: 13px; }
+    .kpi b { display: block; font-size: 24px; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .box { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    .box h3 { font-size: 16px; margin-bottom: 8px; }
+    .rk { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .rk .n { flex: 1; font-weight: 700; }
+    .split { display: flex; height: 26px; border-radius: 999px; overflow: hidden; margin: 10px 0; font-size: 12px; font-weight: 800; color: #fff; }
+    .split div { display: grid; place-items: center; transition: width .4s; }
+    .closed-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    @media (max-width: 900px) {
+      .pos { grid-template-columns: 1fr; }
+      .order { border-left: 0; border-top: 1px solid var(--line); }
+      .kpis { grid-template-columns: 1fr 1fr; } .two { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) { .tables { grid-template-columns: repeat(3, 1fr); gap: 8px; } .table { min-height: 86px; padding: 10px 4px; } .table b { font-size: 17px; } }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">
+    <a class="back" href="./">← Demolar</a>
+    <span class="note">Örnek uygulamadır · Ege Sofrası gerçek bir dükkan değildir</span>
+    <a class="cta" href="https://wa.me/905333784212?text=Merhaba%2C%20adisyon%20program%C4%B1%20demonuzu%20g%C3%B6rd%C3%BCm.%20Bilgi%20almak%20istiyorum." target="_blank" rel="noopener"><span class="long">Dükkanıma da </span>İstiyorum</a>
+  </div>
+
+  <div class="top">
+    <img src="img/lokanta-kapak.jpg" alt="" />
+    <div class="top-in">
+      <div class="brand"><b>🍲 Ege Sofrası Lokantası</b><small>Konak · Adisyon ve Kasa</small></div>
+      <div class="tabs"><button class="on" data-v="pos">🪑 Masalar</button><button data-v="report">📊 Gün sonu</button></div>
+    </div>
+  </div>
+
+  <div class="view pos" id="v-pos">
+    <div class="tables-wrap">
+      <div class="legend"><span><i style="background:#fff;border:2px solid var(--line)"></i>Boş</span><span><i style="background:#fff3ea;border:2px solid #f1b48f"></i>Dolu</span><span><i style="background:#eaf1ff;border:2px solid #9db8f2"></i>Hesap istendi</span></div>
+      <div class="tables" id="tables"></div>
+    </div>
+    <div class="order" id="order"></div>
+  </div>
+
+  <div class="view" id="v-report" hidden>
+    <div class="report">
+      <h2 style="margin-bottom:4px">Gün sonu raporu</h2>
+      <p style="color:var(--muted);margin-bottom:16px;font-weight:600" id="rDate"></p>
+      <div class="kpis">
+        <div class="kpi"><small>Toplam ciro</small><b id="rCiro"></b></div>
+        <div class="kpi"><small>Kapanan masa</small><b id="rClosed"></b></div>
+        <div class="kpi"><small>Ortalama hesap</small><b id="rAvg"></b></div>
+        <div class="kpi"><small>Açık masa</small><b id="rOpen"></b></div>
+      </div>
+      <div class="two">
+        <div class="box">
+          <h3>Ödeme dağılımı</h3>
+          <div class="split" id="rSplit"></div>
+          <div id="rSplitTxt" style="font-size:14px;font-weight:700"></div>
+          <h3 style="margin-top:18px">Son kapanan hesaplar</h3>
+          <div id="rLast"></div>
+        </div>
+        <div class="box"><h3>Bugün en çok satanlar</h3><div id="rTop"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <div class="modal-head"><span id="mTitle"></span><button class="modal-close" data-close>×</button></div>
+      <div class="modal-body" id="mBody"></div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const tl = n => "₺" + n.toLocaleString("tr-TR");
+    const menu = {
+      "Çorbalar": [["🥣", "Mercimek Çorbası", 90], ["🥣", "Ezogelin", 90], ["🍲", "İşkembe", 140]],
+      "Ana Yemek": [["🫘", "Kuru Fasulye", 160], ["🍛", "Etli Nohut", 170], ["🍆", "Karnıyarık", 190], ["🧆", "İzmir Köfte", 230], ["🍗", "Tavuk Sote", 200]],
+      "Pilav & Yan": [["🍚", "Pirinç Pilavı", 70], ["🌾", "Bulgur Pilavı", 70], ["🥒", "Cacık", 60], ["🥗", "Çoban Salata", 70]],
+      "Tatlı": [["🍮", "Sütlaç", 90], ["🍯", "Kemalpaşa", 110], ["🥮", "İrmik Helvası", 90]],
+      "İçecek": [["🥛", "Ayran", 35], ["🍵", "Çay", 20], ["💧", "Su", 15], ["🥤", "Kola", 50], ["🍷", "Şalgam", 40]]
+    };
+    const find = n => Object.values(menu).flat().find(x => x[1] === n);
+    const mk = (pairs) => pairs.map(([n, q]) => ({ n, q, sent: true }));
+    const ago = m => new Date(Date.now() - m * 6e4);
+    const tables = Array.from({ length: 12 }, (_, i) => ({ no: i + 1, lines: [], open: null, bill: false }));
+    Object.assign(tables[1], { lines: mk([["Kuru Fasulye", 2], ["Pirinç Pilavı", 2], ["Ayran", 2], ["Cacık", 1]]), open: ago(22) });
+    Object.assign(tables[3], { lines: mk([["İzmir Köfte", 1], ["Mercimek Çorbası", 1], ["Çay", 2]]), open: ago(35), bill: true });
+    Object.assign(tables[4], { lines: mk([["Karnıyarık", 3], ["Bulgur Pilavı", 3], ["Çoban Salata", 1], ["Şalgam", 3]]), open: ago(12) });
+    Object.assign(tables[7], { lines: mk([["Etli Nohut", 1], ["Pirinç Pilavı", 1], ["Su", 1]]), open: ago(5) });
+    Object.assign(tables[10], { lines: mk([["Tavuk Sote", 2], ["Ezogelin", 2], ["Kola", 2], ["Kemalpaşa", 2]]), open: ago(48) });
+    const day = { nakit: 4860, kart: 7240, closed: [
+      { no: 6, t: ago(40), total: 640, type: "kart" }, { no: 2, t: ago(65), total: 455, type: "nakit" }, { no: 9, t: ago(80), total: 1120, type: "kart" }
+    ], count: 27, sold: { "Kuru Fasulye": 31, "Pirinç Pilavı": 38, "Mercimek Çorbası": 24, "Ayran": 41, "İzmir Köfte": 17, "Karnıyarık": 14 } };
+    let selT = null, selCat = "Çorbalar";
+
+    const sum = t => t.lines.reduce((s, l) => s + find(l.n)[2] * l.q, 0);
+    const mins = d => Math.max(1, Math.round((Date.now() - d) / 6e4));
+    function toast(m) { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2400); }
+    function openModal(title, html) { $("mTitle").textContent = title; $("mBody").innerHTML = html; $("modal").classList.add("open"); }
+    const closeModal = () => $("modal").classList.remove("open");
+    $("modal").addEventListener("click", e => { if (e.target === $("modal") || e.target.hasAttribute("data-close")) closeModal(); });
+
+    function renderTables() {
+      $("tables").innerHTML = tables.map((t, i) => {
+        const busy = t.lines.length > 0;
+        return `<button class="table ${busy ? (t.bill ? "bill" : "busy") : ""} ${selT === i ? "sel" : ""}" data-i="${i}">
+          <b>Masa ${t.no}</b>
+          ${busy ? `<span class="amt">${tl(sum(t))}</span><small>${t.bill ? "Hesap istendi" : mins(t.open) + " dk"}</small>` : `<small>Boş</small>`}
+        </button>`;
+      }).join("");
+    }
+    $("tables").addEventListener("click", e => {
+      const b = e.target.closest(".table"); if (!b) return;
+      selT = +b.dataset.i; renderTables(); renderOrder();
+      if (innerWidth < 900) $("order").scrollIntoView({ behavior: "smooth" });
+    });
+
+    function renderOrder() {
+      if (selT === null) { $("order").innerHTML = `<div class="placeholder"><div><div class="big">🪑</div>Sipariş almak için bir masaya dokunun</div></div>`; return; }
+      const t = tables[selT], hasNew = t.lines.some(l => !l.sent);
+      $("order").innerHTML = `
+        <div class="o-head"><div><b>Masa ${t.no}</b><small>${t.open ? "Açılış: " + t.open.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }) + " · " + mins(t.open) + " dk" : "Yeni masa"}</small></div>
+          ${t.lines.length ? `<button class="mi" style="padding:8px 12px" data-billreq>${t.bill ? "↩︎ Hesap isteğini kaldır" : "🧾 Hesap istendi"}</button>` : ""}</div>
+        <div class="menu-cats">${Object.keys(menu).map(c => `<button data-cat="${c}" class="${c === selCat ? "on" : ""}">${c}</button>`).join("")}</div>
+        <div class="menu-items">${menu[selCat].map(([e, n, p]) => `<button class="mi" data-add="${n}"><span class="e">${e}</span>${n}<br /><span>${tl(p)}</span></button>`).join("")}</div>
+        <div class="lines">${t.lines.length ? t.lines.map((l, k) => `
+          <div class="ln"><span class="n">${find(l.n)[0]} ${l.n}<small class="${l.sent ? "sent" : "new"}">${l.sent ? "✓ Mutfağa gitti" : "● Yeni, gönderilmedi"}</small></span>
+            <span class="q"><button data-k="${k}" data-d="-1">−</button>${l.q}<button data-k="${k}" data-d="1">+</button></span>
+            <span class="t">${tl(find(l.n)[2] * l.q)}</span></div>`).join("") : `<p style="color:var(--muted);text-align:center;padding:24px 0;font-weight:600">Yukarıdan yemek seçerek sipariş ekleyin</p>`}</div>
+        <div class="o-foot">
+          <div class="o-total"><span>Toplam</span><b>${tl(sum(t))}</b></div>
+          <div class="o-btns">
+            <button class="kitchen" data-kitchen ${hasNew ? "" : "disabled"}>👨‍🍳 Mutfağa gönder</button>
+            <button class="pay" data-pay ${t.lines.length ? "" : "disabled"}>💰 Hesabı kapat</button>
+          </div>
+        </div>`;
+    }
+    $("order").addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b || selT === null) return;
+      const t = tables[selT];
+      if (b.dataset.cat) { selCat = b.dataset.cat; renderOrder(); return; }
+      if (b.dataset.add) {
+        const l = t.lines.find(x => x.n === b.dataset.add && !x.sent);
+        if (l) l.q++; else t.lines.push({ n: b.dataset.add, q: 1, sent: false });
+        if (!t.open) t.open = new Date();
+        renderOrder(); renderTables(); return;
+      }
+      if (b.dataset.k !== undefined) {
+        const l = t.lines[+b.dataset.k]; l.q += +b.dataset.d;
+        if (l.q <= 0) t.lines.splice(+b.dataset.k, 1);
+        if (!t.lines.length) { t.open = null; t.bill = false; }
+        renderOrder(); renderTables(); return;
+      }
+      if (b.hasAttribute("data-billreq")) { t.bill = !t.bill; renderOrder(); renderTables(); return; }
+      if (b.hasAttribute("data-kitchen")) {
+        const news = t.lines.filter(l => !l.sent);
+        news.forEach(l => l.sent = true);
+        toast("Mutfak fişi yazdırıldı: " + news.map(l => l.q + " " + l.n).join(", "));
+        renderOrder(); return;
+      }
+      if (b.hasAttribute("data-pay")) {
+        openModal("Masa " + t.no + " · Hesap", `
+          <div class="receipt">
+            <div style="text-align:center;font-weight:700">EGE SOFRASI LOKANTASI<br />Konak / İzmir</div><hr />
+            ${t.lines.map(l => `<div class="r"><span>${l.q} x ${l.n}</span><span>${tl(find(l.n)[2] * l.q)}</span></div>`).join("")}<hr />
+            <div class="r" style="font-weight:700;font-size:15px"><span>TOPLAM</span><span>${tl(sum(t))}</span></div>
+          </div>
+          <div class="paybtns">
+            <button style="background:var(--green)" data-type="nakit">💵 Nakit</button>
+            <button style="background:var(--blue)" data-type="kart">💳 Kart</button>
+          </div>`);
+        $("mBody").querySelector(".paybtns").onclick = ev => {
+          const pb = ev.target.closest("button[data-type]"); if (!pb) return;
+          const total = sum(t), type = pb.dataset.type;
+          day[type] += total; day.count++;
+          day.closed.unshift({ no: t.no, t: new Date(), total, type });
+          t.lines.forEach(l => day.sold[l.n] = (day.sold[l.n] || 0) + l.q);
+          Object.assign(t, { lines: [], open: null, bill: false });
+          closeModal(); selT = null; renderTables(); renderOrder();
+          toast("Masa " + t.no + " kapandı · " + tl(total) + " " + (type === "nakit" ? "nakit" : "kart"));
+        };
+      }
+    });
+
+    function renderReport() {
+      const ciro = day.nakit + day.kart;
+      $("rDate").textContent = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+      $("rCiro").textContent = tl(ciro);
+      $("rClosed").textContent = day.count;
+      $("rAvg").textContent = tl(Math.round(ciro / day.count));
+      $("rOpen").textContent = tables.filter(t => t.lines.length).length + " masa · " + tl(tables.reduce((s, t) => s + sum(t), 0));
+      const pN = Math.round(day.nakit / ciro * 100);
+      $("rSplit").innerHTML = `<div style="width:${pN}%;background:var(--green)">%${pN}</div><div style="width:${100 - pN}%;background:var(--blue)">%${100 - pN}</div>`;
+      $("rSplitTxt").innerHTML = `<span style="color:var(--green)">💵 Nakit ${tl(day.nakit)}</span> &nbsp;·&nbsp; <span style="color:var(--blue)">💳 Kart ${tl(day.kart)}</span>`;
+      $("rLast").innerHTML = day.closed.slice(0, 5).map(c => `<div class="closed-row"><span>Masa ${c.no} · ${c.t.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</span><b>${tl(c.total)} ${c.type === "nakit" ? "💵" : "💳"}</b></div>`).join("");
+      $("rTop").innerHTML = Object.entries(day.sold).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([n, q], i) => `<div class="rk"><span style="width:20px;font-weight:800;color:var(--muted)">${i + 1}</span><span>${find(n)[0]}</span><span class="n">${n}</span><b>${q} porsiyon</b></div>`).join("");
+    }
+
+    document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
+      document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+      $("v-pos").hidden = b.dataset.v !== "pos"; $("v-report").hidden = b.dataset.v !== "report";
+      if (b.dataset.v === "report") renderReport();
+    }));
+
+    renderTables(); renderOrder();
+    setInterval(renderTables, 60000);
+  </script>
+</body>
+</html>
